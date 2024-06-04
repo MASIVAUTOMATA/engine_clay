@@ -31,7 +31,11 @@ export class Model {
   }
 
   async init() {
+    console.log("INITIALIZE");
+    console.log(this.ifcAPI);
     await this.ifcAPI.Init();
+    console.log("INITIALIZE2");
+
     this._modelID = this.ifcAPI.CreateModel({ schema: WEBIFC.Schemas.IFC4X3 });
     this._context = new WEBIFC.IFC4X3.IfcRepresentationContext(
       new WEBIFC.IFC4X3.IfcLabel("Default"),

@@ -53,8 +53,14 @@ export class SimpleWall extends Element {
     vector.normalize();
     return vector;
   }
+  /**
+   * Constructor for the SimpleWall class.
+   * @param model The model to which this wall belongs.
+   * @param type The type of the wall.
+   */
 
   constructor(model: Model, type: SimpleWallType) {
+    console.log("HEREHER: ", model, type);
     super(model, type);
     this.type = type;
 
@@ -62,6 +68,7 @@ export class SimpleWall extends Element {
     this.body = new Extrusion(model, profile);
     const id = this.body.attributes.expressID;
     this.type.geometries.set(id, this.body);
+
     this.geometries.add(id);
 
     const placement = IfcUtils.localPlacement();
@@ -83,6 +90,12 @@ export class SimpleWall extends Element {
 
     this.model.set(this.attributes);
   }
+
+  /**
+   * Updates the wall's geometry, position, rotation, and associated corners.
+   * @param updateGeometry Flag to update the geometry.
+   * @param updateCorners Flag to update the corners.
+   */
 
   update(updateGeometry: boolean = false, updateCorners = false) {
     this.updateAllOpenings();
@@ -109,6 +122,12 @@ export class SimpleWall extends Element {
 
     if (updateCorners) this.updateAllCorners();
   }
+  /**
+   * Extends the wall to intersect with another wall and returns the intersection point.
+   * @param wall The wall to extend towards.
+   * @param atTheEndPoint Flag indicating if the extension is at the end point.
+   * @returns The intersection point if exists, null otherwise.
+   */
 
   extend(wall: SimpleWall, atTheEndPoint = true) {
     const zDirection = new THREE.Vector3(0, 0, 1);
@@ -162,6 +181,13 @@ export class SimpleWall extends Element {
     }
     return null;
   }
+  /**
+   * Calculates various distances and signs used for aligning corners.
+   * @param wall The wall to calculate distances to.
+   * @param atTheEndPoint Flag indicating if the calculation is at the end point.
+   * @param intersectionPoint The intersection point to calculate distances from.
+   * @returns An object containing the calculated distances and signs.
+   */
 
   private calculateDistances(
     wall: SimpleWall,
@@ -204,6 +230,9 @@ export class SimpleWall extends Element {
       sign3,
     };
   }
+  /**
+   * Updates the positions and rotations of all corners connected to the wall.
+   */
 
   private updateAllCorners() {
     for (const [_id, { wall, atTheEndPoint }] of this._corners) {
@@ -238,6 +267,11 @@ export class SimpleWall extends Element {
     }
     this.update(true);
   }
+  /**
+   * Adds a corner by connecting the wall to another wall and updating half-spaces.
+   * @param wall The wall to connect to.
+   * @param atTheEndPoint Flag indicating if the connection is at the end point.
+   */
 
   addCorner(wall: SimpleWall, atTheEndPoint = true) {
     const intersectionPoint = this.extend(wall, atTheEndPoint);
@@ -294,17 +328,30 @@ export class SimpleWall extends Element {
     });
   }
 
+  /**
+   * Adds an opening to the wall.
+   * @param opening The opening to add.
+   */
+
   addOpening(opening: SimpleOpening) {
     super.addOpening(opening);
     this.setOpening(opening);
     this.updateGeometryID();
   }
+  /**
+   * Removes an opening from the wall.
+   * @param opening The opening to remove.
+   */
 
   removeOpening(opening: SimpleOpening) {
     super.removeOpening(opening);
     this._openings.delete(opening.attributes.expressID);
     this.updateGeometryID();
   }
+  /**
+   * Sets an opening's position and updates it.
+   * @param opening The opening to set.
+   */
 
   setOpening(opening: SimpleOpening) {
     const wallPlane = new THREE.Plane();
@@ -330,6 +377,9 @@ export class SimpleWall extends Element {
 
     this._openings.set(id, { opening, distance });
   }
+  /**
+   * Updates the positions and rotations of all openings in the wall.
+   */
 
   private updateAllOpenings() {
     const start = this.startPoint;
@@ -345,6 +395,10 @@ export class SimpleWall extends Element {
       opening.update();
     }
   }
+
+  /**
+   * Updates the geometry ID of the wall's IFC representation.
+   */
 
   private updateGeometryID() {
     const modelID = this.model.modelID;
